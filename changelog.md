@@ -1,3 +1,10 @@
+## Unreleased
+
+- Add `app.healthCheck` support with defaults and `env.PORT` fallback
+- Run deployment health checks after start and fail deploy on unhealthy app
+- Add automatic rollback to `:previous` image on health check failure
+- Preserve currently running image as `:previous` before starting a new container
+
 ## 0.5.0 - June 26, 2024
 
 - Support host vars

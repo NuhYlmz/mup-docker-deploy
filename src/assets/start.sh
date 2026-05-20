@@ -6,9 +6,17 @@ APPNAME=<%= appName %>
 APP_PATH=/opt/$APPNAME
 ENV_FILE=$APP_PATH/config/env.list
 APP_IMAGE=<%= image %>
+ROLLBACK_IMAGE=<%= rollbackImage %>
 BIND="0.0.0.0"
 PUBLISHED_PORT=<%= publishedPort %>
 EXPOSED_PORT=<%= exposedPort %>
+
+if [ "${SKIP_PREVIOUS_TAG:-0}" != "1" ]; then
+  CURRENT_IMAGE_ID=$(sudo docker container inspect $APPNAME --format '{{.Image}}' 2>/dev/null || true)
+  if [ -n "$CURRENT_IMAGE_ID" ]; then
+    sudo docker tag $CURRENT_IMAGE_ID $ROLLBACK_IMAGE || true
+  fi
+fi
 
 sudo docker rm -f $APPNAME || true
 sudo docker network disconnect bridge -f $APPNAME || true

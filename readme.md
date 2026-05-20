@@ -44,3 +44,36 @@ mup deploy
 ```
 
 Mup will upload your app, build the docker image, and run it.
+
+## Health check and rollback
+
+You can configure a deployment health check with `app.healthCheck`.
+If the health check fails or times out, the plugin will fail deployment
+and try to roll back to the previous image tag.
+
+```js
+module.exports = {
+  app: {
+    // ...
+    healthCheck: {
+      path: '/',
+      expectedStatus: 200,
+      interval: 1,
+      timeout: 60,
+      // Optional. If omitted, env.PORT is used.
+      port: 3000
+    }
+  }
+}
+```
+
+Defaults:
+- `path`: `/`
+- `expectedStatus`: `200`
+- `interval`: `1` second
+- `timeout`: `60` seconds
+- `port`: `app.env.PORT`
+
+Notes:
+- `app.healthCheck` is preferred. `app.docker.healthCheck` is also supported for compatibility.
+- Rollback requires a `:previous` image tag to exist locally on the server.
