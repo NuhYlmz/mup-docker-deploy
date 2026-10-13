@@ -38,6 +38,13 @@ function resolveHealthCheck(appConfig, publishedPort) {
   };
 }
 
+// Seconds between SIGTERM and SIGKILL when a container is replaced or stopped; docker's own default when unset
+function resolveStopTimeout(appConfig) {
+  const stopTimeout = appConfig.docker && appConfig.docker.stopTimeout;
+
+  return stopTimeout === undefined ? 10 : stopTimeout;
+}
+
 export function setup(api, nodemiral) {
   const config = api.getConfig().app;
 
@@ -167,6 +174,7 @@ export function reconfig(api, nodemiral) {
       exposedPort,
       image: appConfig.type === 'remote-image' ? appConfig.image : localImageName,
       rollbackImage,
+      stopTimeout: resolveStopTimeout(appConfig),
       volumes: appConfig.volumes,
       privateRegistry: privateDockerRegistry,
     },
@@ -227,6 +235,7 @@ export function stop(api, nodemiral) {
     script: api.resolvePath(__dirname, 'assets/stop.sh'),
     vars: {
       appName: appConfig.name,
+      stopTimeout: resolveStopTimeout(appConfig),
     },
   });
 

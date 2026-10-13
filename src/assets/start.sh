@@ -10,15 +10,21 @@ ROLLBACK_IMAGE=<%= rollbackImage %>
 BIND="0.0.0.0"
 PUBLISHED_PORT=<%= publishedPort %>
 EXPOSED_PORT=<%= exposedPort %>
+STOP_TIMEOUT=<%= stopTimeout %>
 
 if [ "${SKIP_PREVIOUS_TAG:-0}" != "1" ]; then
   CURRENT_IMAGE_ID=$(sudo docker container inspect $APPNAME --format '{{.Image}}' 2>/dev/null || true)
   if [ -n "$CURRENT_IMAGE_ID" ]; then
     sudo docker tag $CURRENT_IMAGE_ID $ROLLBACK_IMAGE || true
   fi
-fi
 
-sudo docker rm -f $APPNAME || true
+  # SIGTERM first so the app can finish what it is doing; SIGKILL after STOP_TIMEOUT seconds
+  sudo docker stop -t $STOP_TIMEOUT $APPNAME || true
+  sudo docker rm $APPNAME || true
+else
+  # Rolling back: the container being replaced never became healthy, so there is nothing to wait for
+  sudo docker rm -f $APPNAME || true
+fi
 sudo docker network disconnect bridge -f $APPNAME || true
 
 sudo docker run \

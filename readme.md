@@ -77,3 +77,25 @@ Defaults:
 Notes:
 - `app.healthCheck` is preferred. `app.docker.healthCheck` is also supported for compatibility.
 - Rollback requires a `:previous` image tag to exist locally on the server.
+
+## Graceful stop
+
+On deploy and on `mup stop`, the running container is stopped with `docker stop`:
+it receives SIGTERM and is killed after `app.docker.stopTimeout` seconds
+(default 10, docker's own default). Give the app enough time to finish in-flight
+requests and jobs when it handles SIGTERM:
+
+```js
+module.exports = {
+  app: {
+    // ...
+    docker: {
+      imagePort: 3000,
+      stopTimeout: 60
+    }
+  }
+}
+```
+
+A rollback after a failed health check removes the unhealthy container
+immediately, since it never served traffic.
