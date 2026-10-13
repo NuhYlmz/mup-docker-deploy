@@ -14,6 +14,7 @@ export const schema = joi.object().keys({
     args: joi.array().items(joi.string()),
     networks: joi.array().items(joi.string()),
     imagePort: joi.number(),
+    stopTimeout: joi.number().integer().min(0),
     healthCheck: joi.object().keys({
       path: joi.string(),
       expectedStatus: joi.number().integer().min(100).max(599),

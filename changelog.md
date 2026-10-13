@@ -4,6 +4,7 @@
 - Run deployment health checks after start and fail deploy on unhealthy app
 - Add automatic rollback to `:previous` image on health check failure
 - Preserve currently running image as `:previous` before starting a new container
+- Stop the running container with `docker stop` (SIGTERM, then SIGKILL after `app.docker.stopTimeout` seconds, default 10) instead of `docker rm -f` on deploy and `mup stop`; a rollback still removes the unhealthy container immediately
 
 ## 0.5.0 - June 26, 2024
 
